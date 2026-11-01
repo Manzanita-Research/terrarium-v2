@@ -9,6 +9,7 @@ minimumReleaseAgeExclude:
   - '@effect/*'
   - '@distilled.cloud/*'
   - '@alchemy.run/*'
+  - '@maple-dev/*'
 
 # One Effect for the whole workspace: 4.1.1 exactly. FoldKit 0.170 peers on
 # ~4.1.0 and @alchemy.run/domain on ^4.0.5, so 4.1.1 satisfies both.

@@ -1,0 +1,26 @@
+{
+  "name": "@terrarium/runner",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "season": "node --env-file-if-exists=../../.env scripts/season.ts"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "2.0.0-beta.84",
+    "@maple-dev/effect-sdk": "0.13.0",
+    "@terrarium/vending": "workspace:*",
+    "alchemy": "2.0.0-beta.84",
+    "effect": "4.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "typescript": "7.0.2"
+  }
+}

@@ -213,6 +213,31 @@ importers:
         specifier: 5.0.3
         version: 5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))
 
+  packages/runner:
+    dependencies:
+      '@alchemy.run/domain':
+        specifier: 2.0.0-beta.84
+        version: 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1)))(effect@4.1.1)
+      '@maple-dev/effect-sdk':
+        specifier: 0.13.0
+        version: 0.13.0(effect@4.1.1)
+      '@terrarium/vending':
+        specifier: workspace:*
+        version: link:../vending
+      alchemy:
+        specifier: 2.0.0-beta.84
+        version: 2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@types/node':
+        specifier: 24.19.1
+        version: 24.19.1
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+
   packages/vending:
     dependencies:
       '@alchemy.run/domain':
@@ -279,6 +304,11 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@maple-dev/effect-sdk@0.13.0':
+    resolution: {integrity: sha512-EXPVGq60FetgOH+ieMkbCwtb6+yWAmfuL58E0u+6QDnkoCWVmaJVE3YP/bl+Jf2hzzm/WqYLR3xQW2yt0eIczQ==}
+    peerDependencies:
+      effect: 4.1.1
 
   '@oxc-project/types@0.153.0':
     resolution: {integrity: sha512-jSNrRIyvPVLL5E1z/tS5zLAprosGz/FuI1PWwEOz59j3E4TTTzSpqKb/RDGqJhhW0QHYISGXxq582wGx6T11Tw==}
@@ -1237,6 +1267,11 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@maple-dev/effect-sdk@0.13.0(effect@4.1.1)':
+    dependencies:
+      effect: 4.1.1
+      std-env: 4.3.0
 
   '@oxc-project/types@0.153.0': {}
 
