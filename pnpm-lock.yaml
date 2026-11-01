@@ -191,11 +191,36 @@ importers:
         specifier: 5.0.3
         version: 5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))
 
+  packages/explore:
+    dependencies:
+      '@alchemy.run/domain':
+        specifier: 2.0.0-beta.84
+        version: 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1)))(effect@4.1.1)
+      alchemy:
+        specifier: 2.0.0-beta.84
+        version: 2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@types/node':
+        specifier: 24.19.1
+        version: 24.19.1
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 5.0.3
+        version: 5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))
+
   packages/vending:
     dependencies:
       '@alchemy.run/domain':
         specifier: 2.0.0-beta.84
         version: 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1)))(effect@4.1.1)
+      '@terrarium/explore':
+        specifier: workspace:*
+        version: link:../explore
       alchemy:
         specifier: 2.0.0-beta.84
         version: 2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))

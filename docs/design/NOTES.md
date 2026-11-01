@@ -150,7 +150,7 @@ Why these matter: forking is a counterfactual intervention on an agent's path, a
    - Read the source, not memory.
    - Domain rules: one block per kind-suffixed file, folders are subdomains, rejections carry evidence, `decide`/`evolve` are pure.
 3. Domain first: write `Operator/`, `Supplier/`, `Market/` events, commands and rejections for an operator-side vending sim (port vending-lite's rules), with stories before `decide`/`evolve`.
-4. Add `explore()`, a `.chart.ts` file and invariants (stock ≥ 0, cash only changes through events, no sale without stock).
+4. ~~Add `explore()`, a `.chart.ts` file and invariants (stock ≥ 0, cash only changes through events, no sale without stock).~~ Done 2026-11-01: `packages/explore`, `Shop.chart.ts` and `Shop.invariants.ts`.
 5. Write the agent loop: generate tools from the Api's Command schemas, drive the Api client, reuse v1's Flue/Workers AI binding, and record LLM supplier replies as events.
 6. Add a runs store, fork and replay, then the FoldKit explorer, starting with the mockup's view.
 7. Later: a second world to prove the framework is generic, then multi-run views and a human-play mode.
