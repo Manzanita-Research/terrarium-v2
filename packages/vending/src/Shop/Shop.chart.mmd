@@ -1,0 +1,57 @@
+%% Shop: generated from its Statechart; do not edit by hand.
+stateDiagram-v2
+  Unopened : before the season starts
+  Trading : the operator's turn
+  Closing : customers are shopping
+  SeasonOver : ended: the season ran its course
+  Bankrupt : ended: the till couldn't pay the fee
+  [*] --> Unopened
+  Unopened --> Trading : OpenShop / ShopOpened
+  Trading --> Trading : OrderStock / StockOrdered
+  Trading --> Trading : StockMachine / MachineStocked
+  Trading --> Trading : SetPrice / PriceSet
+  Trading --> Closing : WaitForNextDay / DayClosed
+  Closing --> Trading : RecordSales / SalesRecorded, FeeCharged, StockDelivered, DayOpened
+  Closing --> SeasonOver : RecordSales / SalesRecorded, FeeCharged, SeasonEnded
+  Closing --> Bankrupt : RecordSales / SalesRecorded, WentBankrupt
+  SeasonOver --> [*]
+  Bankrupt --> [*]
+  note right of Unopened
+    OrderStock refused (NotTrading)
+    StockMachine refused (NotTrading)
+    SetPrice refused (NotTrading)
+    WaitForNextDay refused (NotTrading)
+    RecordSales does nothing
+  end note
+  note right of Trading
+    OpenShop refused (AlreadyOpen)
+    OrderStock refused (UnknownProduct, InsufficientCash)
+    StockMachine refused (UnknownProduct, NotEnoughInStorage)
+    SetPrice refused (UnknownProduct)
+    RecordSales does nothing
+    SetPrice does nothing
+  end note
+  note right of Closing
+    OpenShop refused (AlreadyOpen)
+    OrderStock refused (NotTrading)
+    StockMachine refused (NotTrading)
+    SetPrice refused (NotTrading)
+    WaitForNextDay refused (NotTrading)
+    RecordSales does nothing
+  end note
+  note right of SeasonOver
+    OpenShop refused (AlreadyOpen)
+    OrderStock refused (NotTrading)
+    StockMachine refused (NotTrading)
+    SetPrice refused (NotTrading)
+    WaitForNextDay refused (NotTrading)
+    RecordSales does nothing
+  end note
+  note right of Bankrupt
+    OpenShop refused (AlreadyOpen)
+    OrderStock refused (NotTrading)
+    StockMachine refused (NotTrading)
+    SetPrice refused (NotTrading)
+    WaitForNextDay refused (NotTrading)
+    RecordSales does nothing
+  end note

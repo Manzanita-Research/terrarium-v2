@@ -18,7 +18,19 @@ Early. The design notes and build plan are in [docs/design/NOTES.md](docs/design
 - `src/Market/`: the `Shoppers` external system and the `Footfall` policy that sends them to the machine when a day closes. `SeededShoppers` is a deterministic crowd. Its demand rules are ported from v1, and each draw is keyed by seed, day and product, so forks of a run see the same customers.
 - `src/Score/`: the `NetWorth` and `Scorecard` views.
 - `src/OperatorApi.api.ts`: everything an operator may do and see. It's the agent's whole interface. Opening the shop and recording sales aren't in it.
-- `test/`: stories for every command and rejection, and a full season played through the `OperatorApi`.
+- `src/Shop/Shop.invariants.ts`: the rules every season must keep. Cash and stock never go negative, cash moves only through events, every unit is accounted for, nothing sells without stock, and the `NetWorth` view matches the books.
+- `src/Shop/Shop.chart.ts`: the shop's lifecycle as a statechart. It's checked against what `explore()` finds, and drawn in [`Shop.chart.mmd`](packages/vending/src/Shop/Shop.chart.mmd).
+- `test/`: stories for every command and rejection, an exhaustive walk of a tiny season, and full seasons played through the `OperatorApi` by three operators (steady, spendthrift and a random monkey) over three seeds, each replayed through the invariants.
+
+## Proving a world sound
+
+[`packages/explore`](packages/explore/) works on any world:
+
+- `explore()` walks every state an aggregate can reach from a fixed set of commands, through its real `decide` and `evolve`. It records each transition, refusal and no-op, and where a bound cut the walk short.
+- It checks invariants after every event, folding views beside the state.
+- It flags a definition that breaks its own rules: an undeclared event or rejection, a throwing `evolve`, or a state its schema rejects.
+- `replay()` runs the same checks over a recorded event log.
+- `Statechart` holds a hand-written chart to what `explore()` found, in both directions, and draws it as Mermaid.
 
 ## Run it
 
