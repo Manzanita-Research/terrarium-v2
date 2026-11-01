@@ -1,0 +1,27 @@
+packages:
+  - packages/*
+
+# Supply-chain hardening, as in the lab's other repos: new releases wait a week.
+minimumReleaseAge: 10080 # minutes
+minimumReleaseAgeExclude:
+  - '@cloudflare/workers-types'
+  - effect
+  - '@effect/*'
+  - '@distilled.cloud/*'
+  - '@alchemy.run/*'
+
+# One Effect for the whole workspace: 4.1.1 exactly. FoldKit 0.170 peers on
+# ~4.1.0 and @alchemy.run/domain on ^4.0.5, so 4.1.1 satisfies both.
+# Add every new @effect/* package here too.
+overrides:
+  effect: 4.1.1
+  '@effect/vitest': 4.1.1
+  '@effect/sql-d1': 4.1.1
+  '@effect/sql-sqlite-do': 4.1.1
+  '@effect/platform-node': 4.1.1
+  '@effect/platform-node-shared': 4.1.1
+  '@effect/platform-bun': 4.1.1
+
+allowBuilds:
+  workerd: false
+  esbuild: false

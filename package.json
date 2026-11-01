@@ -1,0 +1,25 @@
+{
+  "name": "terrarium-workspace",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
+    "format": "oxfmt --disable-nested-config",
+    "format:check": "oxfmt --check --disable-nested-config",
+    "lint": "oxlint --deny-warnings --disable-nested-config ."
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "oxfmt": "0.72.0",
+    "oxlint": "1.87.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  }
+}
