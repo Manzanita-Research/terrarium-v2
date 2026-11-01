@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+*.tsbuildinfo
+.alchemy/
+.wrangler/
+.dev.vars
+.env
+.env.*
+.vitest/
+runs/

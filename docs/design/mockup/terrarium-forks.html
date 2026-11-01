@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terrarium · git for runs (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Source+Serif+4:opsz,wght@8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #FAF9F6; --surface: #FFFDF8; --ink: #2C2C2C; --ink-2: #5C5C5C; --muted: #8A867E;
+    --fog: #E8E5DF; --grid: #ECE8E0; --axis: #CFC9BD; --bark: #6B3A2A;
+    --terracotta: #C2714F; --sage: #6F8A61; --ochre: #B08528; --rust: #A0522D; --lavender: #9B8EA8;
+    /* branch series, validated (3 slots, all-pairs, CVD warn band -> dashes + direct labels) */
+    --b-main: #C25A2C; --b-a: #0A7C9E; --b-b: #9A58C8;
+    --shadow: rgba(44,44,44,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #1C1B19; --surface: #23211E; --ink: #F1EDE4; --ink-2: #C3BDB0; --muted: #8E887C;
+      --fog: #36332E; --grid: #2E2B27; --axis: #4A463F; --bark: #D9A48C;
+      --sage: #93AC85; --ochre: #D2AA52; --rust: #D9825A; --lavender: #B6A9C4;
+      --b-main: #D0662F; --b-a: #1A8EAE; --b-b: #9A72D8;
+      --shadow: rgba(0,0,0,.3);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif; font-size: 15px; line-height: 1.5;
+  }
+  body::before { /* film grain */
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .05; z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .mono, code, .tag, th, .tick { font-family: "IBM Plex Mono", ui-monospace, monospace; font-feature-settings: 'ss01' 1, 'ss02' 1; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 32px 48px; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+  h1 {
+    font-family: Fraunces, Georgia, serif; font-variation-settings: 'WONK' 1, 'SOFT' 100;
+    font-weight: 600; letter-spacing: -0.04em; line-height: 1.1; font-size: 34px; margin: 0;
+  }
+  h1 em { font-style: italic; color: var(--terracotta); font-weight: 500; }
+  h2 {
+    font-family: Fraunces, Georgia, serif; font-variation-settings: 'WONK' 1, 'SOFT' 100;
+    font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; font-size: 19px; margin: 0 0 4px;
+  }
+  .sub { color: var(--ink-2); margin: 6px 0 0; max-width: 44rem; }
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .tag { font-size: 11.5px; padding: 3px 8px; border: 1px solid var(--fog); border-radius: 999px; color: var(--ink-2); background: var(--surface); white-space: nowrap; }
+  .card { background: var(--surface); border: 1px solid var(--fog); border-radius: 10px; box-shadow: 0 1px 2px var(--shadow); padding: 18px 20px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
+  .stack { display: grid; gap: 18px; align-content: start; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .hint { font-size: 12.5px; color: var(--muted); }
+  /* branch legend */
+  .legend { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lg { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--fog);
+        background: transparent; color: var(--ink); cursor: pointer; font: 12.5px "IBM Plex Mono", monospace; }
+  .lg[aria-pressed="true"] { border-color: var(--ink-2); background: var(--page); }
+  .lg svg { flex: none; }
+  /* chart */
+  svg text { fill: var(--muted); font: 11px "IBM Plex Mono", monospace; }
+  .chart-wrap { position: relative; }
+  #tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--fog); border-radius: 8px;
+         box-shadow: 0 4px 14px var(--shadow); padding: 8px 10px; font: 12px "IBM Plex Mono", monospace; color: var(--ink); opacity: 0; transition: opacity .1s; min-width: 170px; z-index: 5; }
+  #tip .r { display: flex; justify-content: space-between; gap: 14px; align-items: center; }
+  #tip .k { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+  #tip b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .scrub { display: flex; align-items: center; gap: 12px; margin-top: 6px; font: 12px "IBM Plex Mono", monospace; color: var(--ink-2); }
+  .scrub input { flex: 1; accent-color: var(--terracotta); }
+  /* divergence callout */
+  .diverge { display: flex; gap: 14px; align-items: flex-start; margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+             background: color-mix(in oklab, var(--terracotta) 8%, var(--surface)); border: 1px solid color-mix(in oklab, var(--terracotta) 30%, var(--fog)); }
+  .diverge .n { font: 600 22px Fraunces, Georgia, serif; font-variation-settings: 'WONK' 1, 'SOFT' 100; letter-spacing: -0.03em; color: var(--bark); white-space: nowrap; }
+  .diverge p { margin: 0; font-size: 14px; }
+  /* timeline */
+  .tl { list-style: none; margin: 0; padding: 0; max-height: 430px; overflow: auto; }
+  .ev { display: grid; grid-template-columns: 48px 56px 1fr auto; gap: 10px; align-items: start; padding: 8px 8px; border-radius: 7px; cursor: pointer; border-left: 3px solid transparent; }
+  .ev:hover { background: var(--page); }
+  .ev.cur { background: var(--page); border-left-color: var(--terracotta); }
+  .ev.future { opacity: .42; }
+  .ev .d, .ev .id { font: 11.5px "IBM Plex Mono", monospace; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+  .ev .t { font-size: 14px; }
+  .ev .t code { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+  .ev .t .x { color: var(--ink-2); font-size: 13px; }
+  .ev .t .rej { color: var(--rust); }
+  .ev .t .edit { color: var(--b-a); }
+  .actor { font: 10.5px "IBM Plex Mono", monospace; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--fog); color: var(--ink-2); white-space: nowrap; }
+  .actor.agent { border-color: color-mix(in oklab, var(--terracotta) 45%, var(--fog)); color: var(--bark); }
+  .actor.llm { border-color: color-mix(in oklab, var(--lavender) 60%, var(--fog)); }
+  .actor.you { border-color: var(--b-a); color: var(--b-a); }
+  .branch-btn { margin-top: 6px; font: 11.5px "IBM Plex Mono", monospace; border: 1px dashed var(--ink-2); background: transparent; color: var(--ink); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+  .branch-btn:hover { border-style: solid; }
+  /* state panel */
+  .kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 14px; }
+  .kv .v { font: 500 13px "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; }
+  .hero { font: 600 40px Fraunces, Georgia, serif; font-variation-settings: 'WONK' 1, 'SOFT' 100; letter-spacing: -0.04em; line-height: 1; }
+  .hero-l { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+  .slots { display: grid; gap: 8px; margin: 14px 0 4px; }
+  .slot { display: grid; grid-template-columns: 52px 1fr 44px; gap: 10px; align-items: center; font: 12px "IBM Plex Mono", monospace; color: var(--ink-2); }
+  .bar { height: 8px; border-radius: 4px; background: var(--grid); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; background: var(--ink-2); }
+  .belief { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .belief > div { border: 1px solid var(--fog); border-radius: 8px; padding: 10px; font-size: 13.5px; }
+  .belief .h { font: 10.5px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+  .belief .gap { border-color: color-mix(in oklab, var(--rust) 55%, var(--fog)); }
+  .status { display: inline-flex; gap: 6px; align-items: center; font: 11.5px "IBM Plex Mono", monospace; color: var(--rust); margin-top: 8px; }
+  .ok { color: var(--sage); }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; font: 12px "IBM Plex Mono", monospace; color: var(--ink-2); }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13px; }
+  th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--fog); font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: 11px; font-weight: 500; color: var(--muted); }
+  #toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; transition: all .2s;
+           background: var(--ink); color: var(--page); padding: 9px 14px; border-radius: 8px; font: 12.5px "IBM Plex Mono", monospace; z-index: 60; }
+  #toast.on { opacity: 1; transform: translateX(-50%); }
+  footer { margin-top: 18px; color: var(--muted); font-size: 12.5px; }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    header { flex-direction: column; align-items: flex-start; }
+    .meta { justify-content: flex-start; }
+    .card-head { flex-direction: column; }
+    .ev { grid-template-columns: 40px 44px 1fr; }
+    .ev .actor { grid-column: 3; justify-self: start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Git for runs <em>· vending-lite</em></h1>
+      <p class="sub">One agent run, two forks. Each fork replays the event log up to a point, changes one command, and lets the agent carry on. Every supplier reply is a recorded event, so the shared history replays exactly.</p>
+    </div>
+    <div class="meta">
+      <span class="tag">run vend-0042</span><span class="tag">seed 42</span><span class="tag">agent: claude-opus-5-5</span><span class="tag">supplier: recorded LLM</span><span class="tag">Domain.InMemory</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card" aria-labelledby="nw-h">
+        <div class="card-head">
+          <div><h2 id="nw-h">Net worth by branch</h2><div class="hint">cash + stock at cost · hover to compare · click to scrub</div></div>
+          <div class="legend" id="legend" role="group" aria-label="Select branch"></div>
+        </div>
+        <div class="chart-wrap" id="chartWrap">
+          <svg id="chart" viewBox="0 0 860 330" width="100%" role="img" aria-label="Net worth over 60 simulated days for the main run and two forks"></svg>
+          <div id="tip" role="status"></div>
+        </div>
+        <div class="scrub"><label for="day">day</label><input id="day" type="range" min="0" max="60" value="44"><span id="dayOut" class="mono">44</span></div>
+        <div class="diverge" id="diverge"></div>
+        <details>
+          <summary>Table view</summary>
+          <table id="tbl"></table>
+        </details>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card" aria-labelledby="st-h">
+        <div class="card-head"><div><h2 id="st-h">World at day <span id="stDay">44</span></h2><div class="hint" id="stBranch"></div></div></div>
+        <div id="state"></div>
+      </section>
+    </div>
+
+    <section class="card" style="grid-column: 1 / -1" aria-labelledby="ev-h">
+      <div class="card-head">
+        <div><h2 id="ev-h">Event log</h2><div class="hint">the selected branch's history, oldest first · faded = after the scrubber</div></div>
+      </div>
+      <ul class="tl" id="tl"></ul>
+    </section>
+  </div>
+  <footer>Mockup for Terrarium v2. Data is invented to show the interactions; nothing here ran.</footer>
+</div>
+<div id="toast"></div>
+
+<script>
+(() => {
+  // ---- invented data --------------------------------------------------------
+  const DAYS = 60;
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const noise = (seed) => { const r = rng(seed); return Array.from({ length: DAYS + 1 }, () => (r() - .5) * 60); };
+  const nMain = noise(42), nA = noise(7), nB = noise(11);
+  const base = d => 500 + 900 * (1 - Math.exp(-d / 18));
+
+  const main = [], a = [], b = [];
+  for (let d = 0; d <= DAYS; d++) {
+    let v = base(d) + (d ? nMain[d] : 0);
+    if (d > 38) { const v38 = base(38) + nMain[38]; const k = Math.min(1, (d - 38) / 16); v = d >= 54 ? 0 : Math.max(0, v38 * (1 - Math.pow(k, 1.35)) + nMain[d] * (1 - k)); }
+    main.push(d <= 54 ? Math.round(v) : null);
+  }
+  for (let d = 0; d <= DAYS; d++) a.push(d < 38 ? null : d === 38 ? main[38] : Math.round(main[38] + 27 * (d - 38) + nA[d]));
+  for (let d = 0; d <= DAYS; d++) b.push(d < 21 ? null : d === 21 ? main[21] : Math.round(main[21] + 13.5 * (d - 21) + nB[d] * .8));
+
+  const BR = [
+    { id: 'main', name: 'main',            css: '--b-main', dash: '',      data: main, from: 0,  note: 'the agent as it actually ran' },
+    { id: 'a',    name: 'fork/cola-3',     css: '--b-a',    dash: '7 4',   data: a,    from: 38, parentEv: 412, note: 'day 38 · SetPrice cola $4.50 → $3.00' },
+    { id: 'b',    name: 'fork/chips-80',   css: '--b-b',    dash: '2 3.5', data: b,    from: 21, parentEv: 231, note: 'day 21 · OrderStock chips ×200 → ×80' },
+  ];
+  // full series for a branch (inherits the parent's history before the fork)
+  const series = br => br.data.map((v, d) => (d < br.from ? main[d] : v));
+
+  const E = (day, id, actor, html, extra = {}) => ({ day, id, actor, html, ...extra });
+  const shared = [
+    E(0, 1, 'system', '<code>RunStarted</code> <span class="x">seed 42 · $500 cash · 3 empty slots</span>'),
+    E(1, 3, 'agent', '<code>OrderStock</code> <span class="x">cola ×120 → </span><code>StockOrdered</code>'),
+    E(3, 9, 'schedule', '<code>DeliveryArrived</code> <span class="x">cola ×120 (scheduled 2 days after the order)</span>'),
+    E(3, 10, 'agent', '<code>SetPrice</code> <span class="x">cola $2.25</span>'),
+    E(9, 88, 'agent', '<code>SendEmail</code> <span class="x">to Hilltop Wholesale: “any discount on bulk?”</span>'),
+    E(9, 89, 'llm', '<code>SupplierReplied</code> <span class="x">“10% off orders over 200 units.” recorded, replays without a model call</span>'),
+    E(14, 152, 'policy', '<code>CustomersArrived</code> <span class="x">58 sales · seeded demand roll</span>'),
+  ];
+  const mainOnly = [
+    E(21, 231, 'agent', '<code>OrderStock</code> <span class="x">chips ×200 (chasing the discount)</span>', { forkOf: 'b' }),
+    E(27, 300, 'policy', '<code>CustomersArrived</code> <span class="x">61 sales</span>'),
+    E(38, 412, 'agent', '<code>SetPrice</code> <span class="x">cola $4.50</span>', { forkOf: 'a' }),
+    E(39, 421, 'policy', '<code>CustomersArrived</code> <span class="x">19 sales: demand falls off at $4.50</span>'),
+    E(41, 455, 'agent', '<code>WriteNote</code> <span class="x">“120 colas arriving Thursday, supplier confirmed”</span><br><span class="rej">⚠ no such order exists. The belief gap opens here</span>'),
+    E(43, 480, 'agent', '<code>OrderStock</code> <span class="rej">✗ InsufficientCash { cash: $38, cost: $180 }</span>'),
+    E(44, 490, 'agent', '<code>OrderStock</code> <span class="rej">✗ InsufficientCash ×6, the same refusal in a loop</span>'),
+    E(49, 530, 'agent', '<code>SendEmail</code> <span class="x">“FINAL NOTICE: where is my delivery?”</span>'),
+    E(49, 531, 'llm', '<code>SupplierReplied</code> <span class="x">“We have no open order for you.”</span>'),
+    E(54, 561, 'system', '<code>MachineBankrupt</code> <span class="rej">cash $0 · daily fee unpaid</span>'),
+  ];
+  const aOnly = [
+    E(21, 231, 'agent', '<code>OrderStock</code> <span class="x">chips ×200</span>'),
+    E(27, 300, 'policy', '<code>CustomersArrived</code> <span class="x">61 sales</span>'),
+    E(38, 412, 'you', '<code>SetPrice</code> <span class="edit">cola $3.00 · edited by you (was $4.50)</span>'),
+    E(39, 421, 'policy', '<code>CustomersArrived</code> <span class="x">74 sales</span>'),
+    E(42, 470, 'agent', '<code>OrderStock</code> <span class="x">cola ×150 → </span><code>StockOrdered</code>'),
+    E(44, 488, 'schedule', '<code>DeliveryArrived</code> <span class="x">cola ×150</span>'),
+    E(52, 560, 'agent', '<code>WriteNote</code> <span class="x">“cola at $3 holds ~70/day; try chips at $1.75”</span>'),
+    E(60, 640, 'system', '<code>RunEnded</code> <span class="ok">net worth $' + a[60].toLocaleString() + '</span>'),
+  ];
+  const bOnly = [
+    E(21, 231, 'you', '<code>OrderStock</code> <span class="edit">chips ×80 · edited by you (was ×200)</span>'),
+    E(27, 300, 'policy', '<code>CustomersArrived</code> <span class="x">60 sales</span>'),
+    E(38, 410, 'agent', '<code>SetPrice</code> <span class="x">cola $3.25: the agent chose differently here without being nudged</span>'),
+    E(47, 505, 'llm', '<code>SupplierReplied</code> <span class="x">“Chips back in stock Monday.” new model call, recorded</span>'),
+    E(60, 633, 'system', '<code>RunEnded</code> <span class="ok">net worth $' + b[60].toLocaleString() + '</span>'),
+  ];
+  const events = { main: [...shared, ...mainOnly], a: [...shared, ...aOnly], b: [...shared, ...bOnly] };
+
+  // ---- state -----------------------------------------------------------------
+  let sel = 'main', day = 44;
+  const $ = id => document.getElementById(id);
+  const color = br => getComputedStyle(document.documentElement).getPropertyValue(br.css).trim();
+  const money = v => v == null ? '—' : '$' + Math.round(v).toLocaleString();
+
+  // ---- chart -----------------------------------------------------------------
+  const W = 860, H = 330, M = { l: 52, r: 112, t: 14, b: 76 }, iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const YMAX = 2200;
+  const x = d => M.l + (d / DAYS) * iw, y = v => M.t + ih - (v / YMAX) * ih;
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent && parent.appendChild(n); return n; };
+  const svg = $('chart');
+
+  function drawChart() {
+    svg.innerHTML = '';
+    for (let v = 0; v <= YMAX; v += 500) {
+      el('line', { x1: M.l, x2: M.l + iw, y1: y(v), y2: y(v), stroke: `var(${v ? '--grid' : '--axis'})`, 'stroke-width': 1 }, svg);
+      const t = el('text', { x: M.l - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'tick' }, svg); t.textContent = v ? '$' + (v / 1000).toFixed(1) + 'k' : '$0';
+    }
+    for (let d = 0; d <= DAYS; d += 10) { const t = el('text', { x: x(d), y: M.t + ih + 16, 'text-anchor': 'middle' }, svg); t.textContent = 'd' + d; }
+
+    // lines (selected last, so it sits on top)
+    const order = [...BR].sort((p, q) => (p.id === sel) - (q.id === sel));
+    for (const br of order) {
+      const pts = br.data.map((v, d) => v == null ? null : [x(d), y(v)]).filter(Boolean);
+      const dStr = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+      const on = br.id === sel;
+      el('path', { d: dStr, fill: 'none', stroke: 'var(--surface)', 'stroke-width': on ? 6 : 5, 'stroke-linejoin': 'round' }, svg); // surface ring
+      el('path', { d: dStr, fill: 'none', stroke: `var(${br.css})`, 'stroke-width': on ? 2.5 : 2, 'stroke-dasharray': br.dash, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: on ? 1 : .55 }, svg);
+      // direct label at the line end
+      const last = pts[pts.length - 1];
+      const ly = br.id === 'main' ? last[1] - 10 : last[1] + 4;
+      const lx = br.id === 'main' ? last[0] + 8 : last[0] + 8;
+      const lt = el('text', { x: lx, y: ly, style: `fill: var(--ink); font-weight: ${on ? 600 : 400}` }, svg);
+      lt.textContent = br.id === 'main' ? 'main ✕ bankrupt d54' : br.name;
+    }
+    // fork points on the parent line
+    for (const br of BR.slice(1)) {
+      el('circle', { cx: x(br.from), cy: y(main[br.from]), r: 5.5, fill: 'var(--surface)', stroke: `var(${br.css})`, 'stroke-width': 2.5 }, svg);
+    }
+
+    // ---- fork tree, sharing the chart's x axis
+    const ty = M.t + ih + 34, rowH = 14;
+    const rows = { main: ty, b: ty + rowH, a: ty + rowH * 2 };
+    const tlab = el('text', { x: M.l - 8, y: ty + 4, 'text-anchor': 'end' }, svg); tlab.textContent = 'tree';
+    for (const br of BR) {
+      const yy = rows[br.id], end = br.id === 'main' ? 54 : DAYS;
+      if (br.id !== 'main') el('path', { d: `M${x(br.from)} ${rows.main} C ${x(br.from) + 10} ${rows.main}, ${x(br.from)} ${yy}, ${x(br.from) + 14} ${yy}`, fill: 'none', stroke: `var(${br.css})`, 'stroke-width': 2 }, svg);
+      el('line', { x1: br.id === 'main' ? x(0) : x(br.from) + 14, x2: x(end), y1: yy, y2: yy, stroke: `var(${br.css})`, 'stroke-width': br.id === sel ? 3 : 2, 'stroke-dasharray': br.dash, opacity: br.id === sel ? 1 : .6 }, svg);
+      const lab = el('text', { x: x(end) + 8, y: yy + 4 }, svg); lab.textContent = br.name;
+      const hit = el('rect', { x: M.l, y: yy - 6, width: iw + 100, height: 12, fill: 'transparent', style: 'cursor:pointer' }, svg);
+      hit.addEventListener('click', () => select(br.id));
+    }
+    for (const ev of events[sel]) el('circle', { cx: x(ev.day), cy: rows[sel], r: 2.2, fill: 'var(--ink-2)' }, svg);
+
+    // scrub line
+    el('line', { x1: x(day), x2: x(day), y1: M.t, y2: rows.a + 6, stroke: 'var(--terracotta)', 'stroke-width': 1.5 }, svg);
+    const sd = el('text', { x: x(day), y: M.t + 10, 'text-anchor': 'middle', style: 'fill: var(--terracotta); font-weight:600' }, svg);
+    sd.textContent = '';
+
+    // hover layer
+    const cross = el('line', { y1: M.t, y2: M.t + ih, stroke: 'var(--axis)', 'stroke-width': 1, opacity: 0 }, svg);
+    const dots = BR.map(br => el('circle', { r: 4.5, fill: `var(${br.css})`, stroke: 'var(--surface)', 'stroke-width': 2, opacity: 0 }, svg));
+    const hit = el('rect', { x: M.l, y: M.t, width: iw, height: ih, fill: 'transparent', style: 'cursor: crosshair' }, svg);
+    const tip = $('tip');
+    const dayAt = evt => { const r = svg.getBoundingClientRect(); const px = (evt.clientX - r.left) * (W / r.width); return Math.max(0, Math.min(DAYS, Math.round((px - M.l) / iw * DAYS))); };
+    hit.addEventListener('mousemove', evt => {
+      const d = dayAt(evt);
+      cross.setAttribute('x1', x(d)); cross.setAttribute('x2', x(d)); cross.setAttribute('opacity', 1);
+      let rowsHtml = '';
+      BR.forEach((br, i) => {
+        const v = series(br)[d];
+        const live = br.data[d] != null || (br.id === 'main' && d <= 54);
+        if (v != null && (d >= br.from)) { dots[i].setAttribute('cx', x(d)); dots[i].setAttribute('cy', y(v)); dots[i].setAttribute('opacity', 1); }
+        else dots[i].setAttribute('opacity', 0);
+        const shown = d < br.from ? 'shares main' : (br.id === 'main' && d > 54 ? 'bankrupt' : money(v));
+        rowsHtml += `<div class="r"><span class="k"><svg width="18" height="6"><line x1="0" x2="18" y1="3" y2="3" stroke="${color(br)}" stroke-width="2.5" stroke-dasharray="${br.dash}"/></svg>${br.name}</span><b>${shown}</b></div>`;
+      });
+      tip.innerHTML = `<div style="margin-bottom:4px;color:var(--muted)">day ${d}</div>` + rowsHtml;
+      const r = svg.getBoundingClientRect(), px = x(d) * r.width / W;
+      tip.style.left = Math.min(px + 14, r.width - 190) + 'px'; tip.style.top = '18px'; tip.style.opacity = 1;
+    });
+    hit.addEventListener('mouseleave', () => { tip.style.opacity = 0; cross.setAttribute('opacity', 0); dots.forEach(c => c.setAttribute('opacity', 0)); });
+    hit.addEventListener('click', evt => setDay(dayAt(evt)));
+  }
+
+  // ---- panels ---------------------------------------------------------------
+  function drawLegend() {
+    $('legend').innerHTML = '';
+    for (const br of BR) {
+      const b = document.createElement('button');
+      b.className = 'lg'; b.setAttribute('aria-pressed', br.id === sel);
+      b.innerHTML = `<svg width="20" height="6"><line x1="0" x2="20" y1="3" y2="3" stroke="${color(br)}" stroke-width="2.5" stroke-dasharray="${br.dash}"/></svg>${br.name}`;
+      b.onclick = () => select(br.id);
+      $('legend').appendChild(b);
+    }
+  }
+
+  function drawDiverge() {
+    const br = BR.find(b => b.id === sel), box = $('diverge');
+    if (sel === 'main') {
+      box.innerHTML = `<div class="n">d54</div><p><b>main went bankrupt.</b> Pick a fork to see where it splits off, or open any event in the log and choose <i>branch here</i>. The first point where a good run and a bad run differ is usually the answer to “where did it go wrong?”</p>`;
+      return;
+    }
+    const delta = br.data[DAYS];
+    box.innerHTML = `<div class="n">#${br.parentEv}</div><p><b>${br.name}</b> shares main's first ${br.parentEv - 1} events, then changes one: <span class="mono">${br.note}</span>. It ends at <b>${money(delta)}</b> on day 60. main hit $0 on day 54.</p>`;
+  }
+
+  function stateAt(br, d) {
+    const nw = series(br)[d] ?? 0;
+    const bankrupt = br.id === 'main' && d >= 54;
+    const r = rng(1000 + d + (br.id === 'a' ? 77 : br.id === 'b' ? 33 : 0));
+    const stockShare = bankrupt ? 0 : Math.max(.08, .42 - (br.id === 'main' && d > 40 ? (d - 40) * .03 : 0));
+    const slots = { cola: Math.round(20 + r() * 90), chips: Math.round((br.id === 'b' ? 10 : 40) + r() * 70), candy: Math.round(10 + r() * 40) };
+    if (br.id === 'main' && d > 40) { slots.cola = Math.max(0, 30 - (d - 40) * 4); }
+    if (br.id === 'main' && d >= 21) slots.chips = Math.max(60, 180 - (d - 21) * 3); // cash sunk into chips
+    if (bankrupt) Object.keys(slots).forEach(k => slots[k] = 0);
+    const cash = br.id === 'main' && d >= 41 ? Math.max(0, 54 - (d - 41) * 8) : nw * (1 - stockShare);
+    return { nw, cash, stock: nw - cash, slots, bankrupt,
+             price: br.id === 'main' ? (d >= 38 ? 4.5 : 2.25) : br.id === 'a' ? (d >= 38 ? 3 : 2.25) : (d >= 38 ? 3.25 : 2.25),
+             gap: br.id === 'main' && d >= 41 };
+  }
+
+  function drawState() {
+    const br = BR.find(b => b.id === sel), s = stateAt(br, day);
+    $('stDay').textContent = day; $('stBranch').textContent = br.name + ' · rebuilt by folding events up to day ' + day;
+    const slot = (k, v) => `<div class="slot"><span>${k}</span><span class="bar"><i style="width:${Math.min(100, v / 1.3)}%"></i></span><span style="text-align:right">${v}</span></div>`;
+    $('state').innerHTML = `
+      <div class="hero">${s.bankrupt ? '$0' : money(s.nw)}</div>
+      <div class="hero-l">net worth${s.bankrupt ? ' · <span style="color:var(--rust)">✕ bankrupt</span>' : ''}</div>
+      <div class="slots">${slot('cola', s.slots.cola)}${slot('chips', s.slots.chips)}${slot('candy', s.slots.candy)}</div>
+      <div class="kv" style="margin: 10px 0 14px">
+        <span>cash</span><span class="v">${money(s.cash)}</span>
+        <span>stock at cost</span><span class="v">${money(s.stock)}</span>
+        <span>cola price</span><span class="v">$${s.price.toFixed(2)}</span>
+        <span>pending orders</span><span class="v">${s.gap || s.bankrupt ? '0' : '1'}</span>
+      </div>
+      <h2 style="font-size:15px">Agent's notes vs. the world</h2>
+      <div class="belief">
+        <div class="${s.gap ? 'gap' : ''}"><div class="h">agent believes</div>${s.gap ? '“120 colas arriving Thursday, supplier confirmed”' : 'Cola sells best around $2–3, one order in flight.'}</div>
+        <div><div class="h">world says</div>${s.gap ? 'No open orders. Cash $' + Math.max(0, Math.round(s.cash)) + '.' : 'One order in flight, matches the notes.'}</div>
+      </div>
+      ${s.gap ? '<div class="status">⚠ belief gap · open since day 41 (event #455)</div>' : '<div class="status ok">✓ notes match the world</div>'}`;
+  }
+
+  function drawLog() {
+    const tl = $('tl'); tl.innerHTML = '';
+    const evs = events[sel];
+    let cur = -1; evs.forEach((e, i) => { if (e.day <= day) cur = i; });
+    evs.forEach((e, i) => {
+      const li = document.createElement('li');
+      li.className = 'ev' + (i === cur ? ' cur' : '') + (e.day > day ? ' future' : '');
+      const actorLabel = { agent: 'agent', llm: 'supplier·llm', policy: 'policy', system: 'system', schedule: 'scheduled', you: 'you' }[e.actor];
+      li.innerHTML = `<span class="d">d${e.day}</span><span class="id">#${e.id}</span><span class="t">${e.html}${i === cur ? `<br><button class="branch-btn" data-ev="${e.id}">⑂ branch here</button>` : ''}</span><span class="actor ${e.actor}">${actorLabel}</span>`;
+      li.addEventListener('click', ev => { if (ev.target.closest('.branch-btn')) return; setDay(e.day); });
+      tl.appendChild(li);
+    });
+    tl.querySelectorAll('.branch-btn').forEach(b => b.addEventListener('click', () => toast(`Would replay ${sel}'s log up to #${b.dataset.ev} in a fresh Domain.InMemory, then open the command editor`)));
+    const c = tl.querySelector('.cur'); if (c) tl.scrollTop = Math.max(0, c.offsetTop - tl.offsetTop - tl.clientHeight / 2);
+  }
+
+  function drawTable() {
+    let h = '<tr><th>day</th>' + BR.map(b => `<th>${b.name}</th>`).join('') + '</tr>';
+    for (let d = 0; d <= DAYS; d += 5) h += `<tr><td>${d}</td>` + BR.map(b => { const v = series(b)[d]; return `<td>${b.id === 'main' && d > 54 ? 'bankrupt' : money(v)}</td>`; }).join('') + '</tr>';
+    $('tbl').innerHTML = h;
+  }
+
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); }
+  function setDay(d) { day = d; $('day').value = d; $('dayOut').textContent = d; render(); }
+  function select(id) { sel = id; render(); }
+  function render() { drawLegend(); drawChart(); drawDiverge(); drawState(); drawLog(); }
+
+  $('day').addEventListener('input', e => setDay(+e.target.value));
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+  drawTable(); render();
+})();
+</script>
+</body>
+</html>
