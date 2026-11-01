@@ -170,6 +170,7 @@ overrides:
   '@effect/platform-node': 4.1.1
   '@effect/platform-node-shared': 4.1.1
   '@effect/platform-bun': 4.1.1
+  '@effect/ai-openai-compat': 4.1.1
 
 importers:
 
@@ -218,6 +219,9 @@ importers:
       '@alchemy.run/domain':
         specifier: 2.0.0-beta.84
         version: 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))))(effect@4.1.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1)))(effect@4.1.1)
+      '@effect/ai-openai-compat':
+        specifier: 4.1.1
+        version: 4.1.1(effect@4.1.1)
       '@maple-dev/effect-sdk':
         specifier: 0.13.0
         version: 0.13.0(effect@4.1.1)
@@ -231,12 +235,18 @@ importers:
         specifier: 4.1.1
         version: 4.1.1
     devDependencies:
+      '@effect/vitest':
+        specifier: 4.1.1
+        version: 4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.1
         version: 24.19.1
       typescript:
         specifier: 7.0.2
         version: 7.0.2
+      vitest:
+        specifier: 5.0.3
+        version: 5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1))
 
   packages/vending:
     dependencies:
@@ -288,6 +298,11 @@ packages:
         optional: true
       react-devtools-core:
         optional: true
+
+  '@effect/ai-openai-compat@4.1.1':
+    resolution: {integrity: sha512-uy9AGjCUquw1/EVrQdeZ1Zlidn9dQeUkkmq9S2xAFiwTnVKpmzZrpK7CcceT7tt+uzLX1DHUJsbIO6P3GmPKrA==}
+    peerDependencies:
+      effect: 4.1.1
 
   '@effect/vitest@4.1.1':
     resolution: {integrity: sha512-VkE9EUXE4G7mXMmV3X3Iu+6k3pZswWjOf7PB2qiaHMoFAZAPtHp+eUZo9oJM4Ip5z+ghQ9K0IDAQM2iG6+w5MA==}
@@ -1253,6 +1268,10 @@ snapshots:
       rolldown: 1.2.13
 
   '@alchemy.run/sigil@0.1.0-alpha.1': {}
+
+  '@effect/ai-openai-compat@4.1.1(effect@4.1.1)':
+    dependencies:
+      effect: 4.1.1
 
   '@effect/vitest@4.1.1(effect@4.1.1)(vitest@5.0.3(@types/node@24.19.1)(vite@8.3.5(@types/node@24.19.1)(yaml@2.9.1)))':
     dependencies:
