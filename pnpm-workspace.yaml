@@ -22,6 +22,7 @@ overrides:
   '@effect/platform-node': 4.1.1
   '@effect/platform-node-shared': 4.1.1
   '@effect/platform-bun': 4.1.1
+  '@effect/ai-openai-compat': 4.1.1
 
 allowBuilds:
   workerd: false
